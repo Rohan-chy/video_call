@@ -23,21 +23,22 @@ import {
   usePublish,
   useRemoteUsers,
   useLocalScreenTrack,
+  type ILocalVideoTrack,
 } from "agora-rtc-react";
 
 const Basics = () => {
   const [calling, setCalling] = useState(false);
   const isConnected = useIsConnected();
-  const [appId, setAppId] = useState("691f2b1a97b44dafa9b01407d248b4b6");
-  const [channel, setChannel] = useState("best");
-  const [token, setToken] = useState("");
+  const [appId] = useState("691f2b1a97b44dafa9b01407d248b4b6");
+  const [channel] = useState("best");
+  const [token] = useState("");
   const [micOn, setMic] = useState(true);
   const [cameraOn, setCamera] = useState(true);
   const [screenSharing, setScreenSharing] = useState(false);
   const [whiteboardVisible, setWhiteboardVisible] = useState(false);
 
   // Fullscreen states
-  const [fullscreenElement, setFullscreenElement] = useState(null);
+  const [fullscreenElement, setFullscreenElement] = useState<string | null>(null);
 
   const { localMicrophoneTrack } = useLocalMicrophoneTrack(micOn);
   const { localCameraTrack } = useLocalCameraTrack(cameraOn);
@@ -46,7 +47,7 @@ const Basics = () => {
   useJoin({ appid: appId, channel: channel, token: token ? token : null }, calling);
 
   // Publish tracks based on current state
-  usePublish([localMicrophoneTrack, screenSharing && screenTrack ? screenTrack : localCameraTrack].filter(Boolean));
+  usePublish([localMicrophoneTrack, screenSharing && screenTrack ? screenTrack : localCameraTrack].filter(Boolean) as any[]);
 
   const remoteUsers = useRemoteUsers();
 
@@ -59,7 +60,7 @@ const Basics = () => {
   }, [error]);
 
   // Toggle screen sharing
-  const toggleScreenSharing = async () => {
+  const toggleScreenSharing = () => {
     setScreenSharing(!screenSharing);
   };
 
@@ -69,7 +70,7 @@ const Basics = () => {
   };
 
   // Fullscreen functions - Fixed version
-  const toggleFullscreen = async (elementType, uid = null) => {
+  const toggleFullscreen = async (elementType: string, uid: string | number | null = null) => {
     const elementId = uid ? `${elementType}-${uid}` : elementType;
 
     try {
@@ -112,7 +113,7 @@ const Basics = () => {
   }, []);
 
   // Check if element is currently in fullscreen
-  const isFullscreen = (elementType, uid = null) => {
+  const isFullscreen = (elementType: string, uid: string | number | null = null) => {
     const elementId = uid ? `${elementType}-${uid}` : elementType;
     return fullscreenElement === elementId;
   };
@@ -142,7 +143,9 @@ const Basics = () => {
                     cameraOn={!screenSharing && cameraOn}
                     micOn={micOn}
                     playAudio={false}
-                    videoTrack={screenSharing && screenTrack ? screenTrack : localCameraTrack}
+                    // videoTrack={screenSharing && screenTrack ? screenTrack : localCameraTrack}
+                    videoTrack={(screenSharing && screenTrack ? screenTrack : localCameraTrack) as ILocalVideoTrack | null}
+
                     className={`w-full h-full object-cover ${isFullscreen('local-video') ? 'rounded-none' : 'rounded-xl'
                       }`}
                   />
@@ -220,38 +223,7 @@ const Basics = () => {
               </div>
 
               <div className="space-y-4">
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">App ID</label>
-                  <input
-                    onChange={e => setAppId(e.target.value)}
-                    placeholder="Enter your App ID"
-                    value={appId}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div> */}
-
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Channel Name</label>
-                  <input
-                    onChange={e => setChannel(e.target.value)}
-                    placeholder="Enter channel name"
-                    value={channel}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div> */}
-
-                {/* <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">Token</label>
-                  <input
-                    onChange={e => setToken(e.target.value)}
-                    placeholder="Enter token if required"
-                    value={token}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200"
-                  />
-                </div> */}
-
                 <button
-                  // disabled={!appId || !channel}
                   onClick={() => setCalling(true)}
                   className="w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-105"
                 >
@@ -272,7 +244,6 @@ const Basics = () => {
                   }`}
                 title={micOn ? "Mute microphone" : "Unmute microphone"}
               >
-                {/* {micOn ? '🎤' : '🔇'} */}
                 {micOn ? <Mic /> : <MicOff />}
               </button>
 
@@ -282,7 +253,6 @@ const Basics = () => {
                   }`}
                 title={cameraOn ? "Turn off camera" : "Turn on camera"}
               >
-                {/* {cameraOn ? '📹' : '📷❌'} */}
                 {cameraOn ? <Camera /> : <CameraOff />}
               </button>
 
@@ -293,7 +263,6 @@ const Basics = () => {
                   } disabled:opacity-50 disabled:cursor-not-allowed`}
                 title={screenSharing ? "Stop screen sharing" : "Share screen"}
               >
-                {/* {screenSharing ? '🖥️⏹️' : '🖥️📤'} */}
                 {screenSharing ? <MonitorOff /> : <Monitor />}
               </button>
 
@@ -303,7 +272,6 @@ const Basics = () => {
                   }`}
                 title={whiteboardVisible ? "Hide whiteboard" : "Show whiteboard"}
               >
-                {/* 🎨 */}
                 {whiteboardVisible ? <PencilOff /> : <Pencil />}
               </button>
 
@@ -312,7 +280,6 @@ const Basics = () => {
                 className="p-3 bg-red-500 text-white rounded-full transition-all duration-200 transform hover:scale-110 hover:bg-red-600"
                 title={calling ? "Leave call" : "Start call"}
               >
-                {/* 📞 */}
                 <PhoneOff />
               </button>
             </div>
@@ -331,16 +298,24 @@ const Basics = () => {
 
 export default Basics;
 
-// Whiteboard Component remains the same
-const Whiteboard = ({ isFullscreen, onToggleFullscreen }) => {
-  const canvasRef = useRef(null);
+// Whiteboard Component with TypeScript fixes
+interface WhiteboardProps {
+  isFullscreen: boolean;
+  onToggleFullscreen: () => void;
+}
+
+const Whiteboard = ({ isFullscreen, onToggleFullscreen }: WhiteboardProps) => {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState('#000000');
   const [brushSize, setBrushSize] = useState(5);
 
   useEffect(() => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
 
     // Set canvas size based on fullscreen state
     if (isFullscreen) {
@@ -356,27 +331,35 @@ const Whiteboard = ({ isFullscreen, onToggleFullscreen }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   }, [isFullscreen]);
 
-  const startDrawing = (e) => {
+  const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     ctx.beginPath();
     ctx.moveTo(x, y);
     setIsDrawing(true);
   };
 
-  const draw = (e) => {
+  const draw = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!isDrawing) return;
 
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const rect = canvas.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
 
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     ctx.lineTo(x, y);
     ctx.strokeStyle = color;
     ctx.lineWidth = brushSize;
@@ -390,7 +373,11 @@ const Whiteboard = ({ isFullscreen, onToggleFullscreen }) => {
 
   const clearCanvas = () => {
     const canvas = canvasRef.current;
+    if (!canvas) return;
+
     const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
     ctx.fillStyle = 'white';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
   };
