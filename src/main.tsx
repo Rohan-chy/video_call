@@ -3,7 +3,7 @@ import { createRoot } from 'react-dom/client'
 import AgoraRTC, { AgoraRTCProvider } from "agora-rtc-react";
 
 import './index.css'
-import App from './App.tsx'
+import App from './App.jsx'
 
 const client = AgoraRTC.createClient({ mode: "rtc", codec: "vp8" });
 
